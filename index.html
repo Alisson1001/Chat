@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <title>Bate-papo Node.js e Socket.IO</title>
+  <style>
+    .card {
+      width: 500px;
+      height: 500px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+      margin: 0 auto;
+      margin-top: 15%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .cabeca {
+      background-color: #333;
+      color: #fff;
+      padding: 10px;
+      font-size: 18px;
+      border-top-left-radius: 5px;
+      border-top-right-radius: 5px;
+    }
+    .janela {
+      height: 350px;
+      overflow-y: scroll;
+    }
+    #messages {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .chatInput {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      border-top: 1px solid #ccc;
+    }
+    .chatInput input {
+      flex: 1;
+      margin-right: 10px;
+    }
+    .chatInput button {
+      flex-shrink: 0;
+    }
+    .message-box {
+      background-color: #f2f2f2;
+      border-radius: 10px;
+      padding: 5px 10px;
+      margin-bottom: 5px;
+      display: inline-block;
+    }
+    .username {
+      font-weight: bold;
+      margin-right: 5px;
+    }
+    .user1 {
+      color: blue;
+    }
+    .user2 {
+      color: green;
+    }
+    .user3 {
+      color: red;
+    }
+    .user4 {
+      color: orange;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <div class="cabeca">Chat</div>
+    <div class="janela">
+      <ul id="messages"></ul>
+    </div>
+    <div class="chatInput">
+      <form action="">
+        <input id="name" placeholder="Seu nome de usuário" autocomplete="off" />
+        <input id="message" placeholder="Sua mensagem" autocomplete="off" />
+        <button>Enviar</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    // Cria uma instância do socket.IO
+    const socket = io();
+    // Seleciona o input do nome do usuário
+    const nameInput = document.getElementById('name');
+    // Selecione a lista de mensagens
+    const messageInput = document.getElementById('message');
+    const messages = document.getElementById('messages');
+    let usernameSubmitted = false;
+    // Adiciona um evento para o envio do formulário
+    document.querySelector('form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const name = nameInput.value;
+      const message = messageInput.value;
+      if (name.trim() && message.trim()) {
+        socket.emit('chat message', { name, message });
+        // Limpa o input da mensagem
+        messageInput.value = '';
+        if (!usernameSubmitted) {
+          // Desabilita o input do nome do usuário após a primeira mensagem
+          nameInput.disabled = true;
+          usernameSubmitted = true;
+        }
+      }
+    });
+    socket.on('chat message', (data) => {
+      const li = document.createElement('li');
+      const messageBox = document.createElement('div');
+      const usernameSpan = document.createElement('span');
+      const messageSpan = document.createElement('span');
+
+      usernameSpan.textContent = data.name + ': ';
+      messageSpan.textContent = data.message;
+
+      messageBox.classList.add('message-box');
+      usernameSpan.classList.add('username');
+
+      if (data.name === nameInput.value) {
+        messageBox.classList.add('right-align');
+      } else {
+        messageBox.classList.add('left-align');
+      }
+
+      if (data.name === 'user1') {
+        usernameSpan.classList.add('user1');
+      } else if (data.name === 'user2') {
+        usernameSpan.classList.add('user2');
+      } else if (data.name === 'user3') {
+        usernameSpan.classList.add('user3');
+      } else if (data.name === 'user4') {
+        usernameSpan.classList.add('user4');
+      }
+
+      messageBox.appendChild(usernameSpan);
+      messageBox.appendChild(messageSpan);
+      li.appendChild(messageBox);
+      messages.appendChild(li);
+    });
+  </script>
+
+  <style>
+    .left-align {
+      text-align: left;
+    }
+    .right-align {
+      text-align: right;
+    }
+  </style>
+</body>
+</html>
