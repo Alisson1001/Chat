@@ -4,22 +4,22 @@
 <head>
   <title>Bate-papo Node.js e Socket.IO</title>
   <style>
+    /* Estilos CSS */
 
+    /* Declaração da fonte personalizada */
     @font-face {
       font-family: 'Retropix';
-      src: url('fonts/retropix.ttf') format('truetype'); /* Substitua o nome do arquivo e o formato conforme necessário */
+      src: url('retro-pixel-retro-pixel-svg-400.otf') format('opentype');
       font-weight: normal;
       font-style: normal;
     }
 
-
-
-
-    body{
+    body {
       font-family: 'Retropix', sans-serif;
     }
+
+    /* Estilos do cartão de chat */
     .card {
-      
       width: 500px;
       height: 500px;
       background-color: #fff;
@@ -33,15 +33,18 @@
       justify-content: space-between;
     }
 
+    /* Estilos do cabeçalho */
     .cabeca {
       background-color: #333;
       color: #fff;
+      font-family: 'Retropix', sans-serif;
       padding: 10px;
       font-size: 18px;
       border-top-left-radius: 5px;
       border-top-right-radius: 5px;
     }
 
+    /* Estilos da janela de mensagens */
     .janela {
       height: 350px;
       overflow-y: scroll;
@@ -57,6 +60,7 @@
       padding: 0;
     }
 
+    /* Estilos do campo de entrada do chat */
     .chatInput {
       display: flex;
       align-items: center;
@@ -81,12 +85,17 @@
       cursor: pointer;
     }
 
+    /* Estilos das mensagens */
     .message-box {
       background-color: #f2f2f2;
       border-radius: 10px;
       padding: 5px 10px;
       margin-bottom: 5px;
       display: inline-block;
+      word-break: break-word;
+      clear: both;
+      float: left; /* Adiciona o float para alinhar as mensagens corretamente */
+      max-width: 70%; /* Define a largura máxima para evitar que as mensagens se espalhem demais */
     }
 
     .username {
@@ -113,6 +122,7 @@
     .message-row {
       display: flex;
       justify-content: flex-start;
+      clear: both; /* Limpa o float para cada linha de mensagem */
     }
 
     .message-row.right {
@@ -153,6 +163,7 @@
       const name = nameInput.value;
       const message = messageInput.value;
       if (name.trim() && message.trim()) {
+        // Envia a mensagem para o servidor via socket.IO
         socket.emit('chat message', { name, message });
         // Limpa o input da mensagem
         messageInput.value = '';
@@ -166,6 +177,8 @@
         }
       }
     });
+
+    // Recebe a mensagem do servidor via socket.IO e exibe na janela de mensagens
     socket.on('chat message', (data) => {
       const li = document.createElement('li');
       const messageBox = document.createElement('div');
