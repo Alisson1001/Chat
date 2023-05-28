@@ -1,9 +1,25 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
   <title>Bate-papo Node.js e Socket.IO</title>
   <style>
+
+    @font-face {
+      font-family: 'Retropix';
+      src: url('fonts/retropix.ttf') format('truetype'); /* Substitua o nome do arquivo e o formato conforme necessário */
+      font-weight: normal;
+      font-style: normal;
+    }
+
+
+
+
+    body{
+      font-family: 'Retropix', sans-serif;
+    }
     .card {
+      
       width: 500px;
       height: 500px;
       background-color: #fff;
@@ -16,6 +32,7 @@
       flex-direction: column;
       justify-content: space-between;
     }
+
     .cabeca {
       background-color: #333;
       color: #fff;
@@ -24,28 +41,46 @@
       border-top-left-radius: 5px;
       border-top-right-radius: 5px;
     }
+
     .janela {
       height: 350px;
       overflow-y: scroll;
     }
+
+    .janela::-webkit-scrollbar {
+      display: none;
+    }
+
     #messages {
       list-style: none;
       margin: 0;
       padding: 0;
     }
+
     .chatInput {
       display: flex;
       align-items: center;
       padding: 10px;
       border-top: 1px solid #ccc;
     }
+
     .chatInput input {
       flex: 1;
       margin-right: 10px;
+      border-radius: 20px;
+      padding: 5px 10px;
     }
+
     .chatInput button {
       flex-shrink: 0;
+      border: none;
+      background-color: #333;
+      color: #fff;
+      border-radius: 20px;
+      padding: 5px 10px;
+      cursor: pointer;
     }
+
     .message-box {
       background-color: #f2f2f2;
       border-radius: 10px;
@@ -53,21 +88,35 @@
       margin-bottom: 5px;
       display: inline-block;
     }
+
     .username {
       font-weight: bold;
       margin-right: 5px;
     }
+
     .user1 {
       color: blue;
     }
+
     .user2 {
       color: green;
     }
+
     .user3 {
       color: red;
     }
+
     .user4 {
       color: orange;
+    }
+
+    .message-row {
+      display: flex;
+      justify-content: flex-start;
+    }
+
+    .message-row.right {
+      justify-content: flex-end;
     }
   </style>
 </head>
@@ -75,14 +124,14 @@
 <body>
   <div class="card">
     <div class="cabeca">Chat</div>
-    <div class="janela">
+    <div class="janela" id="janela">
       <ul id="messages"></ul>
     </div>
     <div class="chatInput">
       <form action="">
         <input id="name" placeholder="Seu nome de usuário" autocomplete="off" />
         <input id="message" placeholder="Sua mensagem" autocomplete="off" />
-        <button>Enviar</button>
+        <button type="submit">&#10148;</button>
       </form>
     </div>
   </div>
@@ -97,6 +146,7 @@
     const messageInput = document.getElementById('message');
     const messages = document.getElementById('messages');
     let usernameSubmitted = false;
+    const janela = document.getElementById('janela');
     // Adiciona um evento para o envio do formulário
     document.querySelector('form').addEventListener('submit', (event) => {
       event.preventDefault();
@@ -106,9 +156,12 @@
         socket.emit('chat message', { name, message });
         // Limpa o input da mensagem
         messageInput.value = '';
+
         if (!usernameSubmitted) {
-          // Desabilita o input do nome do usuário após a primeira mensagem
-          nameInput.disabled = true;
+          // Oculta o input do nome do usuário após o envio da primeira mensagem
+          nameInput.style.display = 'none';
+          // Aumenta o tamanho da caixa de mensagem após o envio da primeira mensagem
+          messageInput.style.width = '400px';
           usernameSubmitted = true;
         }
       }
@@ -125,12 +178,6 @@
       messageBox.classList.add('message-box');
       usernameSpan.classList.add('username');
 
-      if (data.name === nameInput.value) {
-        messageBox.classList.add('right-align');
-      } else {
-        messageBox.classList.add('left-align');
-      }
-
       if (data.name === 'user1') {
         usernameSpan.classList.add('user1');
       } else if (data.name === 'user2') {
@@ -144,17 +191,21 @@
       messageBox.appendChild(usernameSpan);
       messageBox.appendChild(messageSpan);
       li.appendChild(messageBox);
+
+      if (data.name === nameInput.value) {
+        li.classList.add('message-row', 'right');
+      } else {
+        li.classList.add('message-row');
+      }
+
       messages.appendChild(li);
+
+      // Aguarda um pequeno intervalo para garantir que as novas mensagens sejam renderizadas antes de atualizar o scroll
+      setTimeout(() => {
+        janela.scrollTop = janela.scrollHeight - janela.clientHeight;
+      }, 100);
     });
   </script>
-
-  <style>
-    .left-align {
-      text-align: left;
-    }
-    .right-align {
-      text-align: right;
-    }
-  </style>
 </body>
+
 </html>
